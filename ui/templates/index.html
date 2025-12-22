@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Property Pricing System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <h5>Property Pricing Engine</h5>
+    <button class="btn btn-outline-primary btn-sm" onclick="toggleCalculator()">
+      Calculator
+    </button>
+  </div>
+
+  <div class="app-container">
+    <!-- PROPERTY PANEL -->
+    <div id="propertyPanel" class="property-panel full">
+      <div class="panel-section inputs">
+        <h6 class="section-title">Service Details</h6>
+
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Service Name</label>
+            <input id="serviceName" class="form-control" />
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Unit</label>
+            <input id="serviceUnit" class="form-control" />
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Property Size</label>
+            <input id="propertySize" class="form-control" />
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <button class="btn btn-primary px-4" onclick="analyzePricing()">
+            Search
+          </button>
+        </div>
+
+        <div id="analysisStatus" class="analysis-status hidden"></div>
+      </div>
+
+      <div class="panel-section output">
+        <h6 class="section-title">Pricing Results</h6>
+
+        <div class="price-card">
+          <div class="price-row">
+            <span>Source Price</span>
+            <input class="form-control" value="—" />
+          </div>
+
+          <div class="price-row">
+            <span>Detected Rule</span>
+            <input class="form-control" value="—" />
+          </div>
+
+          <div class="price-row final">
+            <span>Calculated Price</span>
+            <input class="form-control" value="—" />
+          </div>
+
+          <div class="source">Waiting for analysis…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESIZER -->
+    <div id="resizer" class="resizer hidden"></div>
+
+    <!-- CALCULATOR PANEL -->
+    <div
+      id="calculatorPanel"
+      class="calculator-panel hidden"
+      tabindex="0"
+    >
+      <div class="calc-display-wrap">
+        <div id="calcExpression" class="calc-expression"></div>
+        <div id="calcResult" class="calc-result">0</div>
+      </div>
+
+      <div class="calc-grid">
+        <button onclick="clearAll()">C</button>
+        <button onclick="clearEntry()">CE</button>
+        <button onclick="backspace()">⌫</button>
+        <button onclick="append('/')">÷</button>
+
+        <button onclick="append('7')">7</button>
+        <button onclick="append('8')">8</button>
+        <button onclick="append('9')">9</button>
+        <button onclick="append('*')">×</button>
+
+        <button onclick="append('4')">4</button>
+        <button onclick="append('5')">5</button>
+        <button onclick="append('6')">6</button>
+        <button onclick="append('-')">−</button>
+
+        <button onclick="append('1')">1</button>
+        <button onclick="append('2')">2</button>
+        <button onclick="append('3')">3</button>
+        <button onclick="append('+')">+</button>
+
+        <button class="span-2" onclick="append('0')">0</button>
+        <button onclick="append('.')">.</button>
+        <button onclick="calculate()">=</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script>
+    /* ================= PRICING ================= */
+    function analyzePricing() {
+      const service = serviceName.value;
+      const unit = serviceUnit.value;
+      const size = propertySize.value;
+      const status = analysisStatus;
+
+      if (!service || !unit || !size) {
+        status.textContent = "Please fill all fields.";
+        status.classList.remove("hidden");
+        return;
+      }
+
+      status.textContent = `Analyzing "${service}" (${size} ${unit})…`;
+      status.classList.remove("hidden");
+    }
+
+    /* ================= CALCULATOR ================= */
+    let expression = "";
+    const panel = document.getElementById("calculatorPanel");
+    const exprEl = document.getElementById("calcExpression");
+    const resultEl = document.getElementById("calcResult");
+
+    function append(v) {
+      expression += v;
+      updateDisplay();
+    }
+
+    function calculate() {
+      try {
+        const res = eval(expression);
+        exprEl.textContent = expression;
+        resultEl.textContent = "= " + res;
+        expression = res.toString();
+      } catch {
+        resultEl.textContent = "Error";
+      }
+    }
+
+    function clearAll() {
+      expression = "";
+      exprEl.textContent = "";
+      resultEl.textContent = "0";
+    }
+
+    function clearEntry() {
+      expression = expression.replace(/[\d.]+$/, "");
+      updateDisplay();
+    }
+
+    function backspace() {
+      expression = expression.slice(0, -1);
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      resultEl.textContent = expression || "0";
+    }
+
+    /* Keyboard ONLY when calculator focused */
+    panel.addEventListener("keydown", (e) => {
+      if (!panel.matches(":focus")) return;
+
+      if (/[0-9.+\-*/]/.test(e.key)) append(e.key);
+      else if (e.key === "Enter") calculate();
+      else if (e.key === "Backspace") backspace();
+      else if (e.key === "Escape") clearAll();
+    });
+
+    /* ================= TOGGLE + RESIZE ================= */
+    let calcOpen = false;
+
+    function toggleCalculator() {
+      const calc = calculatorPanel;
+      const prop = propertyPanel;
+      const resizer = document.getElementById("resizer");
+
+      calcOpen = !calcOpen;
+
+      if (calcOpen) {
+        calc.classList.remove("hidden");
+        resizer.classList.remove("hidden");
+        prop.classList.add("shrink");
+        setTimeout(() => calc.focus(), 100);
+      } else {
+        calc.classList.add("hidden");
+        resizer.classList.add("hidden");
+        prop.classList.remove("shrink");
+        prop.style.width = "100%";
+      }
+    }
+
+    const resizer = document.getElementById("resizer");
+    resizer.addEventListener("mousedown", () => {
+      document.addEventListener("mousemove", resize);
+      document.addEventListener("mouseup", stopResize);
+    });
+
+    function resize(e) {
+      const total = window.innerWidth;
+      const leftPct = (e.clientX / total) * 100;
+      const rightPct = 100 - leftPct;
+
+      if (leftPct < 60 || leftPct > 90) return;
+      if (rightPct < 10 || rightPct > 40) return;
+
+      propertyPanel.style.width = leftPct + "%";
+      calculatorPanel.style.width = rightPct + "%";
+    }
+
+    function stopResize() {
+      document.removeEventListener("mousemove", resize);
+      document.removeEventListener("mouseup", stopResize);
+    }
+  </script>
+</body>
+</html>

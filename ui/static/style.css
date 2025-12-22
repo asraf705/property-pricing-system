@@ -1,0 +1,287 @@
+:root {
+    --bg: #f4f6fb;
+    --panel: #ffffff;
+    --border: #e5e7eb;
+    --primary: #4f46e5;
+    --muted: #6b7280;
+}
+
+/* RESET */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, system-ui, sans-serif;
+    background: var(--bg);
+}
+
+/* TOP BAR */
+.top-bar {
+    height: 50px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* APP */
+.app-container {
+    display: flex;
+    height: calc(100vh - 50px);
+}
+
+/* PROPERTY PANEL */
+.property-panel {
+    width: 100%;
+    background: var(--panel);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.35s ease;
+}
+
+.property-panel.shrink {
+    width: 80%;
+}
+
+/* SECTIONS */
+.panel-section {
+    padding: 20px;
+}
+
+.inputs {
+    border-bottom: 1px solid var(--border);
+}
+
+.output {
+    flex-grow: 1;
+    overflow-y: auto;
+    background: #fafafa;
+}
+
+.section-title {
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+/* SEARCH RESULT */
+.service-result {
+    background: #eef2ff;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.hidden {
+    display: none;
+}
+
+/* PRICE CARD */
+.price-card {
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.price-row input {
+    width: 120px;
+    text-align: right;
+}
+
+.price-row.final {
+    background: #eef2ff;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.source {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+/* CALCULATOR */
+.calculator-panel {
+    width: 20%;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    padding: 16px;
+    animation: slideIn 0.35s ease;
+}
+
+.calc-display {
+    width: 100%;
+    font-size: 1.4rem;
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    text-align: right;
+}
+
+.calc-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.calc-grid button {
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #f1f5f9;
+    font-weight: 600;
+    transition: background 0.15s;
+}
+
+.calc-grid button:hover {
+    background: #e5e7eb;
+}
+
+.span-2 {
+    grid-column: span 2;
+}
+
+/* RESIZER */
+.resizer {
+    width: 5px;
+    cursor: col-resize;
+    background: #d1d5db;
+}
+
+/* ANIMATION */
+@keyframes slideIn {
+    from {
+        transform: translateX(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+
+.analysis-status {
+    margin-top: 12px;
+    padding: 10px;
+    background: #eef2ff;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #3730a3;
+}
+
+
+.calculator-panel {
+    width: 20%;
+    min-width: 20%;
+    max-width: 40%;
+    background: aliceblue;
+    border-left: 1px solid #1e293b;
+    outline: none;
+}
+
+.calculator {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* DISPLAY */
+.calc-display {
+    padding: 20px;
+    background: #020617;
+}
+
+.calc-expression {
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.calc-result {
+    font-size: 32px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+/* BUTTONS */
+.calc-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 15px;
+}
+
+.calc-buttons button {
+    background: #1e293b;
+    border: none;
+    color: #f8fafc;
+    font-size: 18px;
+    padding: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.calc-buttons button:hover {
+    background: #334155;
+}
+
+.zero {
+    grid-column: span 2;
+}
+
+.equals {
+    background: #2563eb;
+}
+
+.equals:hover {
+    background: #1d4ed8;
+}
+
+/* HISTORY */
+.calc-history {
+    border-top: 1px solid #1e293b;
+    padding: 10px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.history-list {
+    margin-top: 10px;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px;
+    background: #020617;
+    border-radius: 6px;
+    margin-bottom: 6px;
+}
+
+.history-item button {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+}
