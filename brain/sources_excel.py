@@ -1,29 +1,57 @@
-
 import pandas as pd
 from pathlib import Path
+import string
 
-def load_excel_rules(intent):
-    rules = []
+EXCEL_DIR = Path("data/excel")
 
-    for file in Path("data/excel").glob("*.xlsx"):
+def _col_letter(n):
+    """Convert column index to Excel-style letters"""
+    result = ""
+    while n >= 0:
+        result = chr(n % 26 + 65) + result
+        n = n // 26 - 1
+    return result
+
+def load_excel_tables():
+    """
+    Loads ALL excel tables as raw data blocks.
+    No assumptions about column names.
+    """
+    tables = []
+
+    for file in EXCEL_DIR.glob("*.xlsx"):
         xls = pd.ExcelFile(file)
 
         for sheet in xls.sheet_names:
-            df = xls.parse(sheet)
-            df.columns = [str(c).lower().strip() for c in df.columns]
+            df = xls.parse(sheet, header=None)
 
-            for _, row in df.iterrows():
-                service = str(row.get("service", "")).lower()
+            if df.empty:
+                continue
 
-                if intent["service"] in service:
-                    rules.append({
-                        "base_area": int(row.get("base_area", 0)),
-                        "base_price": float(row.get("base_price", 0)),
-                        "per_unit": int(row.get("per_unit", 100)),
-                        "per_price": float(row.get("per_price", 0)),
-                        "debris": float(row.get("debris", 0)),
-                        "source": f"{file.name} → {sheet}",
-                        "confidence": 0.7
-                    })
+            headers = df.iloc[0].fillna("").astype(str).tolist()
+            body = df.iloc[1:]
 
-    return rules
+            table = {
+                "file": file.name,
+                "sheet": sheet,
+                "headers": headers,
+                "rows": [],
+            }
+
+            for row_idx, row in body.iterrows():
+                row_data = {}
+
+                for col_idx, cell in enumerate(row):
+                    col_letter = _col_letter(col_idx)
+                    row_data[col_letter] = {
+                        "value": str(cell).strip(),
+                        "row": row_idx + 1,
+                        "col": col_letter,
+                        "header": headers[col_idx] if col_idx < len(headers) else ""
+                    }
+
+                table["rows"].append(row_data)
+
+            tables.append(table)
+
+    return tables
